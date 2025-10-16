@@ -1,0 +1,5 @@
+{
+  "name": "ARC Smart Agriculture Dashboard",
+  "description": "A modern, real-time dashboard to visualize 7-in-1 soil sensor data for the ARC Smart Agriculture project. It displays key metrics like moisture, temperature, pH, and NPK levels with a clean, futuristic interface.",
+  "requestFramePermissions": []
+}
