@@ -9,3 +9,9 @@ export interface SoilData {
   phosphorus: number;
   potassium: number;
 }
+
+export interface AIAnalysisResponse {
+  overall_summary: string;
+  observations: string[];
+  recommendations: string[];
+}

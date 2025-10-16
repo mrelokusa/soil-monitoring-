@@ -6,6 +6,8 @@ import MetricCard from './components/MetricCard';
 import NPKChart from './components/NPKChart';
 import Footer from './components/Footer';
 import HistoryTable from './components/HistoryTable';
+import HistoricalDataChart from './components/HistoricalDataChart';
+import AIAnalysis from './components/AIAnalysis';
 import {
   MoistureIcon,
   TemperatureIcon,
@@ -74,6 +76,17 @@ const App: React.FC = () => {
             <div className="lg:col-span-4">
                 <NPKChart data={latestData} />
             </div>
+
+            <div className="lg:col-span-4 my-4">
+              <AIAnalysis latestData={latestData} />
+            </div>
+            
+            {data && data.length > 1 && (
+                <div className="lg:col-span-4">
+                    <HistoricalDataChart data={data} />
+                </div>
+            )}
+
             <MetricCard
               icon={<MoistureIcon />}
               label="Moisture"
