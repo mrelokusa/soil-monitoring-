@@ -23,11 +23,11 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ data }) => {
     };
     
     return (
-        <div className="bg-brand-surface border border-gray-800 rounded-lg p-5 transition-all duration-300 hover:border-gray-700 shadow-lg">
-            <h2 className="text-xl font-bold text-brand-text-primary mb-4">Readings History</h2>
+        <div className="bg-brand-surface dark:bg-dark-brand-surface border border-gray-200 dark:border-gray-800 rounded-lg p-5 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-700 shadow-sm hover:shadow-md dark:shadow-none">
+            <h2 className="text-xl font-bold text-brand-text-primary dark:text-dark-brand-text-primary mb-4">Readings History</h2>
             <div className="overflow-x-auto relative max-h-96">
-                <table className="w-full text-left text-sm text-brand-text-secondary">
-                    <thead className="bg-brand-surface text-xs uppercase sticky top-0">
+                <table className="w-full text-left text-sm text-brand-text-secondary dark:text-dark-brand-text-secondary">
+                    <thead className="bg-brand-surface dark:bg-dark-brand-surface text-xs uppercase sticky top-0">
                         <tr>
                             <th scope="col" className="px-6 py-3">Timestamp</th>
                             <th scope="col" className="px-6 py-3 text-center">Moisture (%)</th>
@@ -39,10 +39,10 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ data }) => {
                             <th scope="col" className="px-6 py-3 text-center">K (mg/kg)</th>
                         </tr>
                     </thead>
-                    <tbody className='divide-y divide-gray-800'>
+                    <tbody className='divide-y divide-gray-200 dark:divide-gray-800'>
                         {data.map((reading) => (
-                            <tr key={reading.id} className="hover:bg-gray-900/30">
-                                <th scope="row" className="px-6 py-4 font-medium text-brand-text-primary whitespace-nowrap">
+                            <tr key={reading.id} className="hover:bg-gray-100 dark:hover:bg-gray-900/30">
+                                <th scope="row" className="px-6 py-4 font-medium text-brand-text-primary dark:text-dark-brand-text-primary whitespace-nowrap">
                                     {formatTimestamp(reading.inserted_at)}
                                 </th>
                                 <td className="px-6 py-4 text-center">{reading.moisture.toFixed(1)}</td>

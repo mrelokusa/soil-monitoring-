@@ -1,0 +1,18 @@
+{
+  "name": "ARC Smart Agriculture Dashboard",
+  "short_name": "ARC Agri",
+  "description": "A modern, real-time dashboard to visualize 7-in-1 soil sensor data for the ARC Smart Agriculture project.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF9F6",
+  "theme_color": "#4CAF50",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

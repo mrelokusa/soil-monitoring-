@@ -1,97 +1,116 @@
-import React, { useState } from 'react';
-import { getSoilAnalysis } from '../services/geminiService';
-import { SoilData, AIAnalysisResponse } from '../types';
-import { SparklesIcon } from './Icons';
+import React, { useState, useCallback } from 'react';
+import { getCombinedAnalysis } from '../services/geminiService';
+import { sendAlertToWebhook } from '../services/webhookService';
+import { SoilData, GreenhouseData, AIAnalysisResponse } from '../types';
+import { SparklesIcon, RefreshIcon } from './Icons';
 
 interface AIAnalysisProps {
-  latestData: SoilData;
+  latestSoilData?: SoilData;
+  latestGreenhouseData?: GreenhouseData;
+  userEmail: string | null;
 }
 
-const AIAnalysis: React.FC<AIAnalysisProps> = ({ latestData }) => {
+const AISkeletonLoader: React.FC = () => (
+    <div className="space-y-4">
+        <div className="w-3/4 h-6 bg-gray-300 dark:bg-gray-700 rounded animate-pulse-bg"></div>
+        <div className="space-y-2">
+            <div className="w-full h-4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse-bg"></div>
+            <div className="w-5/6 h-4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse-bg"></div>
+        </div>
+        <div className="space-y-2 pt-2">
+            <div className="w-1/4 h-5 bg-gray-300 dark:bg-gray-700 rounded animate-pulse-bg mb-2"></div>
+            <div className="w-full h-4 bg-gray-300 dark:bg-gray-700 rounded animate-pulse-bg"></div>
+        </div>
+    </div>
+)
+
+const AIAnalysis: React.FC<AIAnalysisProps> = ({ latestSoilData, latestGreenhouseData, userEmail }) => {
   const [analysis, setAnalysis] = useState<AIAnalysisResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleAnalyze = async () => {
+  const handleAnalysis = useCallback(async () => {
+    if (!latestSoilData || !latestGreenhouseData) {
+      return;
+    }
+    
     setLoading(true);
     setError(null);
-    setAnalysis(null);
     try {
-      const result = await getSoilAnalysis(latestData);
+      const result = await getCombinedAnalysis(latestSoilData, latestGreenhouseData);
       setAnalysis(result);
+      // Send the result to the webhook for alerting
+      await sendAlertToWebhook(result, userEmail);
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred while generating the analysis.');
-      }
+      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [latestSoilData, latestGreenhouseData, userEmail]);
 
   return (
-    <div className="bg-brand-surface border border-gray-800 rounded-lg p-5 transition-all duration-300 hover:border-gray-700 shadow-lg">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
+    <div className="bg-brand-surface dark:bg-dark-brand-surface border border-gray-200 dark:border-gray-800 rounded-lg p-5 transition-all duration-300 hover:border-gray-300 dark:hover:border-gray-700 shadow-sm hover:shadow-md dark:shadow-none">
+      <div className="flex justify-between items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 text-brand-primary dark:text-dark-brand-primary">
             <SparklesIcon />
-            <h2 className="text-xl font-bold text-brand-text-primary">AI Soil Analyst</h2>
+            <h2 className="text-xl font-bold text-brand-text-primary dark:text-dark-brand-text-primary">AI Environmental Analyst</h2>
         </div>
-        <button
-          onClick={handleAnalyze}
-          disabled={loading}
-          className="bg-brand-primary/80 text-white font-semibold py-2 px-4 rounded-lg hover:bg-brand-primary transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center"
+        <button 
+            onClick={handleAnalysis} 
+            disabled={loading || !latestSoilData || !latestGreenhouseData}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-brand-secondary dark:text-dark-brand-secondary bg-brand-surface dark:bg-dark-brand-surface border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="Refresh AI Analysis"
         >
-          {loading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Analyzing...
-            </>
-          ) : (
-            analysis ? 'Re-analyze Current Data' : 'Analyze Soil Health'
-          )}
+            <RefreshIcon className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? 'Analyzing...' : 'Refresh Now'}
         </button>
       </div>
 
-      <div className="min-h-[150px]">
+      <div className="min-h-[200px] p-2">
         {!analysis && !loading && !error && (
-            <div className="flex flex-col items-center justify-center h-full text-center text-brand-text-secondary p-4">
-                <p>Click the button to get an AI-powered analysis of the latest soil data.</p>
-                <p className="text-xs mt-2">Gemini will provide insights and recommendations.</p>
+             <div className="flex flex-col items-center justify-center h-full text-center text-brand-text-secondary dark:text-dark-brand-text-secondary p-4">
+                <p>
+                    {latestSoilData && latestGreenhouseData ? 'Click "Refresh Now" to generate an AI analysis.' : 'Waiting for sensor data to begin analysis...'}
+                </p>
             </div>
         )}
-        {loading && (
-             <div className="flex items-center justify-center h-full text-brand-text-secondary">
-                <p>Contacting agricultural expert... please wait.</p>
-            </div>
-        )}
-        {error && (
+        {loading && <AISkeletonLoader />}
+        {error && !loading && (
             <div className="bg-red-900/50 border border-red-700 rounded-md p-4 text-red-300">
                 <h3 className="font-bold">Analysis Failed</h3>
                 <p className="text-sm mt-1">{error}</p>
             </div>
         )}
-        {analysis && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-brand-text-secondary">
-                <div className="md:col-span-3">
-                    <h3 className="font-semibold text-brand-primary mb-2">Overall Summary</h3>
-                    <p className="text-brand-text-primary bg-gray-900/30 p-3 rounded-md">{analysis.overall_summary}</p>
-                </div>
+        {analysis && !loading && (
+            <div className="space-y-4 text-brand-text-secondary dark:text-dark-brand-text-secondary">
                 <div>
-                    <h3 className="font-semibold text-brand-secondary mb-2">Key Observations</h3>
-                    <ul className="list-disc list-inside space-y-2">
-                        {analysis.observations.map((item, index) => <li key={index}>{item}</li>)}
-                    </ul>
+                    <h3 className="font-semibold text-brand-primary dark:text-dark-brand-primary mb-2 text-base">Overall Summary</h3>
+                    <p className="text-brand-text-primary dark:text-dark-brand-text-primary bg-gray-100 dark:bg-gray-900/30 p-3 rounded-md text-sm">{analysis.overall_summary}</p>
                 </div>
-                <div className="md:col-span-2">
-                    <h3 className="font-semibold text-brand-primary mb-2">Recommendations</h3>
-                    <ul className="list-disc list-inside space-y-2">
-                        {analysis.recommendations.map((item, index) => <li key={index}>{item}</li>)}
-                    </ul>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div>
+                        <h3 className="font-semibold text-brand-secondary dark:text-dark-brand-secondary mb-2">Key Observations</h3>
+                        <ul className="list-disc list-inside space-y-2 text-sm">
+                            {analysis.observations.map((item, index) => <li key={index}>{item}</li>)}
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold text-brand-primary dark:text-dark-brand-primary mb-2">Recommendations</h3>
+                        <ul className="list-disc list-inside space-y-2 text-sm">
+                            {analysis.recommendations.map((item, index) => <li key={index}>{item}</li>)}
+                        </ul>
+                    </div>
                 </div>
+
+                {analysis.cross_domain_insights && analysis.cross_domain_insights.length > 0 && (
+                     <div>
+                        <h3 className="font-semibold text-brand-secondary dark:text-dark-brand-secondary mb-2">Integrated Insights</h3>
+                        <ul className="list-disc list-inside space-y-2 text-sm">
+                            {analysis.cross_domain_insights.map((item, index) => <li key={index}>{item}</li>)}
+                        </ul>
+                    </div>
+                )}
             </div>
         )}
       </div>

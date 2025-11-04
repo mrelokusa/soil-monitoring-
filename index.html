@@ -1,22 +1,36 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ARC Smart Agriculture Dashboard</title>
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#4CAF50" />
+    <link rel="apple-touch-icon" href="assets/icon.svg" />
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              'brand-bg': '#0D0D0D',
-              'brand-surface': '#1A1A1A',
-              'brand-primary': '#4ADE80', // A vibrant green
-              'brand-secondary': '#22D3EE', // A cool cyan
-              'brand-text-primary': '#F3F4F6',
-              'brand-text-secondary': '#9CA3AF',
+              // Light Mode (Farm Theme) - Default
+              'brand-bg': '#FBF9F6', // Creamy off-white
+              'brand-surface': '#FFFFFF',
+              'brand-primary': '#4CAF50', // Earthy Green
+              'brand-secondary': '#795548', // Warm Brown
+              'brand-text-primary': '#1F2937', // Dark Gray
+              'brand-text-secondary': '#6B7280', // Medium Gray
+
+              // Dark Mode
+              'dark-brand-bg': '#0D0D0D',
+              'dark-brand-surface': '#1A1A1A',
+              'dark-brand-primary': '#4ADE80', // Vibrant Green
+              'dark-brand-secondary': '#22D3EE', // Cool Cyan
+              'dark-brand-text-primary': '#F3F4F6',
+              'dark-brand-text-secondary': '#9CA3AF',
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
@@ -24,6 +38,26 @@
             boxShadow: {
                 'glow-green': '0 0 15px 0 rgba(74, 222, 128, 0.3)',
                 'glow-cyan': '0 0 15px 0 rgba(34, 211, 238, 0.3)',
+                'glow-red': '0 0 15px 0 rgba(239, 68, 68, 0.5)',
+            },
+            animation: {
+                'pulse-bg': 'pulse-bg 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                'pulse-warning': 'pulse-warning 1.5s ease-in-out infinite',
+                'fade-in': 'fade-in 0.5s ease-out forwards',
+            },
+            keyframes: {
+                'fade-in': {
+                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+                'pulse-bg': {
+                    '0%, 100%': { backgroundColor: 'rgba(55, 65, 81, 0.3)' },
+                    '50%': { backgroundColor: 'rgba(55, 65, 81, 0.4)' },
+                },
+                'pulse-warning': {
+                    '0%, 100%': { borderColor: 'rgba(239, 68, 68, 0.4)' },
+                    '50%': { borderColor: 'rgba(239, 68, 68, 1)' },
+                }
             }
           }
         }
@@ -43,8 +77,14 @@
   }
 }
 </script>
+<style>
+  /* Basic transition for color scheme changes */
+  body, .bg-brand-surface, .bg-brand-bg {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+</style>
 </head>
-  <body class="bg-brand-bg font-sans">
+  <body class="bg-brand-bg font-sans dark:bg-dark-brand-bg">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
