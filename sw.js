@@ -21,6 +21,8 @@ const URLS_TO_CACHE = [
   '/components/EmailSubscription.tsx',
   '/components/RefreshControl.tsx',
   '/components/AnimatedNumber.tsx',
+  '/components/Dashboard.tsx', // Added
+  '/components/Documentation.tsx', // Added
   '/assets/icon.svg',
   'https://aistudiocdn.com/react@^19.2.0',
   'https://aistudiocdn.com/react-dom@^19.2.0/client.js',
@@ -36,7 +38,9 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
-        return cache.addAll(URLS_TO_CACHE);
+        // Use { cache: 'reload' } to ensure we're fetching the latest versions from the network during install.
+        const requests = URLS_TO_CACHE.map(url => new Request(url, { cache: 'reload' }));
+        return cache.addAll(requests);
       })
   );
 });
